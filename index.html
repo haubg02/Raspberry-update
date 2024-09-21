@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>OwlSight | Telescope</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="A onepage portfolio HTML template by Unslate.co">
+    <meta name="keywords" content="html, css, javascript, jquery">
+    <meta name="author" content="Unslate.co">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/icomoon/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/owl.carousel.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/aos.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/animate.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/jquery.fancybox.min.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.8.1/nipplejs.css" />
+
+    <!-- Theme Style -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.8.1/nipplejs.min.js" defer></script>
+</head>
+<body data-spy="scroll" data-target=".site-nav-target" data-offset="200">
+
+    <nav class="unslate_co--site-mobile-menu">
+        <div class="close-wrap d-flex">
+            <a href="#" class="d-flex ml-auto js-menu-toggle">
+                <span class="close-label">Close</span>
+                <div class="close-times">
+                    <span class="bar1"></span>
+                    <span class="bar2"></span>
+                </div>
+            </a>
+        </div>
+        <div class="site-mobile-inner"></div>
+    </nav>
+
+    <div class="unslate_co--site-wrap">
+        <div class="unslate_co--site-inner">
+            <nav class="unslate_co--site-nav site-nav-target">
+                <div class="container">
+                    <div class="row align-items-center justify-content-between text-left">
+                        <div class="col-3">
+                            <div class="site-logo">
+                                <a href="http://192.168.1.14:5000/" class="unslate_co--site-logo">Controller<span></span></a>
+                            </div>
+                        </div>
+                        <div class="col text-right">
+                            <ul class="site-nav-ul js-clone-nav text-left d-none d-lg-inline-block">
+                                <li>
+                                    <a href="https://haubg02.github.io/OwlSight-Telescope/">
+                                        <img rc="{{ url_for('static', filename='images/svg/001-options.svg') }}" alt="Image" width="45" style="vertical-align: middle; margin-right: 5px;">
+                                        Home
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="site-nav-ul-none-onepage text-right d-inline-block d-lg-none">
+                                <li><a href="#" class="js-menu-toggle">Menu</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="cover-v1 jarallax overlay" style="background-image: url('{{ url_for('static', filename='images/cover_bg_1.jpg') }}');" id="home-section">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-md-7 text-left">
+                            <h1>Track an Astronomical Object</h1>
+                            <form id="trackForm" action="/track" method="post">
+                                <label for="preset">Select an astronomical object:</label>
+                                <select id="preset" name="preset" required>
+                                    <option value="" disabled selected>Select an object</option> 
+                                    <option value="Sun">Sun</option>
+                                    <option value="Moon">Moon</option>
+                                    <option value="Mars">Mars</option>
+                                    <option value="Jupiter">Jupiter</option>
+                                    <option value="Venus">Venus</option>
+                                    <option value="Saturn">Saturn</option>
+                                    <option value="Uranus">Uranus</option>
+                                    <option value="Neptune">Neptune</option>
+                                    <option value="Proxima Centauri b">Proxima Centauri b</option>
+                                </select>
+                                <br>
+                                <input type="submit" value="Send Data">
+                            </form>
+                            <div id="form-message-warning" class="mt-4" style="display:none; color: rgb(230, 117, 117);">There was an error sending your message. Please try again.</div> 
+                            <div id="form-message-success" class="form-message" style="display:none; color: rgb(12, 166, 110);">
+                                Your message was sent, thank you!
+                            </div>
+                            <p style="margin: 100px 0; text-align: left; margin-left: 25px;">Manual</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="joystick-container" style="position: relative; width: 100%; height: 300px;"></div>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const successMessage = document.getElementById('form-message-success');
+                    const warningMessage = document.getElementById('form-message-warning');
+                    const presetSelect = document.getElementById('preset');
+
+                    presetSelect.addEventListener('change', () => {
+                      successMessage.style.display = 'none';
+                      warningMessage.style.display = 'none';
+                    });
+
+                    document.getElementById('trackForm').onsubmit = function(event) {
+                        event.preventDefault(); // Prevent the default form submission
+                        // Send data via AJAX
+                        const formData = new FormData(this);
+                        fetch('/track', {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            document.getElementById('result').innerHTML = data.message; // Display the result
+                            document.getElementById('form-message-success').style.display = 'block';
+                            document.getElementById('form-message-warning').style.display = 'none';
+                        })
+                        .catch(error => {
+                            document.getElementById('form-message-warning').style.display = 'block';
+                            document.getElementById('form-message-success').style.display = 'none';
+                        });
+                    };
+
+                    function showMessage(messageElement) {
+                        successMessage.style.display = 'none';
+                        warningMessage.style.display = 'none';
+                        messageElement.style.display = 'block';
+                    }
+
+                    const joystickContainer = document.getElementById('joystick-container');
+                    const joystick = nipplejs.create({
+                        zone: joystickContainer,
+                        mode: 'static',
+                        position: { left: '17%', bottom: '170%' },
+                        size: 100,
+                        color: 'blue',
+                    });
+
+                    joystick.on('move', (event, data) => {
+                        sendData('manual', { direction: data.angle.degree, distance: data.distance });
+                    });
+
+                    joystick.on('end', () => {
+                        sendData('manual', { direction: null, distance: 0 });
+                    });
+
+                    function sendData(mode, data) {
+                        fetch('/control', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ mode, data }),
+                        })
+                        .then(response => response.json())
+                        .then(console.log)
+                        .catch(error => console.error('Error:', error));
+                    }
+                });
+            </script>
+
+            <a href="#portfolio-section" class="mouse-wrap smoothscroll">
+                <span class="mouse">
+                    <span class="scroll"></span>
+                </span>
+                <span class="mouse-label">Scroll</span>
+            </a>
+        </div>
+
+        <footer class="unslate_co--footer unslate_co--section">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-md-7">
+                        <div class="footer-site-logo"><a href="index.html">OwlSight<span></span></a></div>
+                        <ul class="footer-site-social">
+                            <li><a href="https://www.facebook.com/vansinh.tong.560">Facebook</a></li>
+                            <li><a href="https://x.com/">Twitter</a></li>
+                            <li><a href="https://www.instagram.com/hauc02/">Instagram</a></li>
+                            <li><a href="https://dribbble.com/">Dribbble</a></li>
+                            <li><a href="https://www.behance.net/">Behance</a></li>
+                        </ul>
+                        <p class="site-copyright">
+                            Copyright &copy;
+                            <script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="icon-heart" aria-hidden="true"></i> by <a href="https://www.facebook.com/vansinh.tong.560" target="_blank">OwlSight</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Loader -->
+    <div id="unslate_co--overlayer"></div>
+    <div class="site-loader-wrap">
+        <div class="site-loader dark"></div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/scripts-dist.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+    <!-- Global site tag (gtag) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-157808202-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-157808202-1');
+    </script>
+</body>
+</html>
